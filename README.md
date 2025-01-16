@@ -1,62 +1,54 @@
 # Triton Inference Server with FasterRCNN Object Detection
 
-본 프로젝트는 FasterRCNN 모델을 Triton Inference Server를 사용하여 서빙하고, 객체 탐지를 수행하는 예제입니다.
-
-## 프로젝트 구조 README.md 파일을 다음과 같이 작성하겠습니다:
-
-```markdown
-# Triton Inference Server with FasterRCNN Object Detection
-
-본 프로젝트는 FasterRCNN 모델을 Triton Inference Server를 사용하여 서빙하고, 객체 탐지를 수행하는 예제입니다.
+FasterRCNN 모델을 Triton Inference Server로 서빙하는 객체 탐지 프로젝트입니다.
 
 ## 프로젝트 구조
 
 ```
 .
 ├── client/
-│   └── client_dev.py        # 클라이언트 코드
+│   └── client_dev.py        # 개발용 클라이언트
 ├── model_repository/
-│   └── fasterrcnn/
-│       └── config.pbtxt     # 모델 설정 파일
-├── Dockerfile               # Triton 서버 도커파일
-├── model_format_conversion.py # 모델 변환 스크립트
-├── requirements.txt         # 의존성 파일
-├── triton_client.py        # Triton 클라이언트
-├── torch_inf.py            # PyTorch 추론 테스트
-└── train.png               # 테스트 이미지
+│   └── fasterrcnn/         # 모델 저장소
+├── Dockerfile              # Triton 서버 도커파일
+├── triton_client.py       # 기본 클라이언트
+└── model_format_conversion.py # 모델 변환기
 ```
 
-## 설치 및 실행 방법
+## 빠른 시작
 
-### 1. 환경 설정
-
-필요한 패키지 설치:
+1. **환경 설정**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. 모델 준비
-
-1. PyTorch 모델을 TorchScript 형식으로 변환:
+2. **모델 변환**
 ```bash
 python model_format_conversion.py
 ```
 
-### 3. Triton Server 실행
-
-1. Docker 이미지 빌드:
+3. **서버 실행**
 ```bash
 docker build -t triton-fasterrcnn .
+docker run --rm -p 8000-8002:8000-8002 triton-fasterrcnn
 ```
 
-2. Docker 컨테이너 실행:
+4. **클라이언트 실행**
 ```bash
-docker run --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 triton-fasterrcnn
+python triton_client.py  # 기본 클라이언트
+# 또는
+python client/client_dev.py  # 개발용 클라이언트
 ```
 
-### 4. 클라이언트 실행
+## 주요 스펙
 
-두 가지 클라이언트 옵션이 있습니다:
+- **모델**: FasterRCNN ResNet50 FPN V2 (COCO 80클래스)
+- **입력**: RGB 이미지 [3, H, W]
+- **출력**: 
+  - boxes: [N, 4] (FP32)
+  - labels: [N] (INT64)
+  - scores: [N] (FP32)
+- **신뢰도 임계값**: 0.5
 
 1. 기본 클라이언트:
 ```bash
